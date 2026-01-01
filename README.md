@@ -11,6 +11,8 @@ Browse your Claude Code conversation history in a beautiful web UI
 
 </div>
 
+<br />
+
 Run the project simply by executing
 
 ```bash
