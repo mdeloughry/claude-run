@@ -1,5 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { Download, X } from "lucide-react";
+import { invoke } from "@tauri-apps/api/core";
+import type { Session, ConversationMessage } from "../lib/types";
+import {
+  htmlExporter,
+  markdownExporter,
+  jsonExporter,
+  textExporter,
+} from "../lib/exporters";
+import type { Exporter } from "../lib/exporters";
 
 interface ExportDropdownProps {
   sessionId: string;
@@ -21,6 +30,13 @@ const THEMES: { key: Theme; label: string }[] = [
   { key: "minimal", label: "Minimal" },
 ];
 
+const exporters: Record<string, Exporter> = {
+  html: htmlExporter,
+  md: markdownExporter,
+  json: jsonExporter,
+  txt: textExporter,
+};
+
 function ExportDropdown(props: ExportDropdownProps) {
   const { sessionId } = props;
   const [open, setOpen] = useState(false);
@@ -40,16 +56,32 @@ function ExportDropdown(props: ExportDropdownProps) {
   }, [open, close]);
 
   const handleExport = async () => {
-    const params = new URLSearchParams({ format });
-    if (format === "html") params.set("theme", theme);
-    if (!includeTools) params.set("stripTools", "true");
+    const exporter = exporters[format];
+    if (!exporter) return;
 
-    const res = await fetch(`/api/export/${sessionId}?${params}`);
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const disposition = res.headers.get("Content-Disposition") || "";
-    const match = disposition.match(/filename="(.+)"/);
-    const filename = match ? match[1] : `claude-export.${format}`;
+    const [session, messages] = await Promise.all([
+      invoke<Session | null>("get_session_meta", { sessionId }),
+      invoke<ConversationMessage[]>("get_conversation", { sessionId }),
+    ]);
+
+    if (!session) return;
+
+    const stripTools = !includeTools;
+    const output = exporter.generate({
+      messages,
+      session,
+      theme: format === "html" ? theme : undefined,
+      stripTools,
+    });
+
+    const safeName =
+      session.display
+        .replace(/[^a-zA-Z0-9-_ ]/g, "")
+        .replace(/\s+/g, "-")
+        .slice(0, 60) || "conversation";
+    const filename = `claude-${safeName}.${exporter.fileExtension}`;
+
+    const blob = new Blob([output], { type: exporter.contentType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

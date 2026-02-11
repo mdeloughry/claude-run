@@ -6,6 +6,8 @@ dist/
 web-dist/
 web/dist/
 shared/dist/
+src-tauri/target/
+src-tauri/gen/
 
 # Environment files
 .env
@@ -29,7 +31,7 @@ npm-debug.log*
 # Cache
 .cache/
 
-# Lock files (using pnpm)
-package-lock.json
+# Lock files
 yarn.lock
 bun.lockb
+pnpm-lock.yaml

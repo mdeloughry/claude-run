@@ -1,7 +1,7 @@
 import { marked } from "marked";
 import { createTwoFilesPatch } from "diff";
 import type { Exporter, ExportContext } from "./types";
-import type { ContentBlock } from "../storage";
+import type { ContentBlock } from "../types";
 import { sanitizeText, escapeHtml } from "./sanitize";
 
 // SVG icons as inline strings
@@ -86,11 +86,6 @@ function renderToolInputHtml(
 }
 
 function renderContentBlocks(blocks: ContentBlock[], stripTools?: boolean): string {
-  const toolMap = new Map<string, string>();
-  for (const b of blocks) {
-    if (b.type === "tool_use" && b.id && b.name) toolMap.set(b.id, b.name);
-  }
-
   const parts: string[] = [];
 
   for (const block of blocks) {

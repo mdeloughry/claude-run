@@ -1,0 +1,26 @@
+[package]
+name = "claude-run"
+version = "0.2.2"
+edition = "2021"
+
+[lib]
+name = "claude_run_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "claude-run"
+path = "src/main.rs"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["fs", "io-util", "sync", "macros"] }
+notify = "7"
+notify-debouncer-mini = "0.5"
+home = "0.5"
+anyhow = "1"
+log = "0.4"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }

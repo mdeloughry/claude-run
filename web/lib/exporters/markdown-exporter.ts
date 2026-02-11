@@ -1,5 +1,5 @@
 import type { Exporter, ExportContext } from "./types";
-import type { ContentBlock } from "../storage";
+import type { ContentBlock } from "../types";
 import { sanitizeText } from "./sanitize";
 
 function renderToolInput(

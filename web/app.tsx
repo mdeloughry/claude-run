@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import type { Session } from "@claude-run/api";
+import type { Session } from "./lib/types";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { PanelLeft, Copy, Check, Eye, EyeOff } from "lucide-react";
 import ExportDropdown from "./components/export-dropdown";
 import { formatTime } from "./utils";
 import SessionList from "./components/session-list";
 import SessionView from "./components/session-view";
-import { useEventSource } from "./hooks/use-event-source";
 
 interface SessionHeaderProps {
   session: Session;
@@ -99,43 +100,29 @@ function App() {
     return sessions.find((s) => s.id === selectedSession) || null;
   }, [sessions, selectedSession]);
 
+  // Initial data load
   useEffect(() => {
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then(setProjects)
-      .catch(console.error);
+    invoke<string[]>("get_projects").then(setProjects).catch(console.error);
+    invoke<Session[]>("get_sessions")
+      .then((data) => {
+        setSessions(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
-  const handleSessionsFull = useCallback((event: MessageEvent) => {
-    const data: Session[] = JSON.parse(event.data);
-    setSessions(data);
-    setLoading(false);
-  }, []);
-
-  const handleSessionsUpdate = useCallback((event: MessageEvent) => {
-    const updates: Session[] = JSON.parse(event.data);
-    setSessions((prev) => {
-      const sessionMap = new Map(prev.map((s) => [s.id, s]));
-      for (const update of updates) {
-        sessionMap.set(update.id, update);
-      }
-      return Array.from(sessionMap.values()).sort(
-        (a, b) => b.timestamp - a.timestamp,
-      );
+  // Listen for session updates from file watcher
+  useEffect(() => {
+    const unlisten = listen("sessions-update", () => {
+      invoke<Session[]>("get_sessions")
+        .then(setSessions)
+        .catch(console.error);
     });
-  }, []);
 
-  const handleSessionsError = useCallback(() => {
-    setLoading(false);
+    return () => {
+      unlisten.then((fn) => fn());
+    };
   }, []);
-
-  useEventSource("/api/sessions/stream", {
-    events: [
-      { eventName: "sessions", onMessage: handleSessionsFull },
-      { eventName: "sessionsUpdate", onMessage: handleSessionsUpdate },
-    ],
-    onError: handleSessionsError,
-  });
 
   const filteredSessions = useMemo(() => {
     if (!selectedProject) {

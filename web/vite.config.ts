@@ -3,40 +3,33 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { resolve } from "path";
 
+const host = process.env.TAURI_DEV_HOST;
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   root: resolve(__dirname),
   base: "/",
-  resolve: {
-    alias: {
-      "@claude-run/api": resolve(__dirname, "../api/storage.ts"),
-    },
-  },
+  clearScreen: false,
   server: {
     port: 12000,
-    proxy: {
-      "/api": {
-        target: "http://localhost:12001",
-        changeOrigin: true,
-        configure: (proxy) => {
-          proxy.on("proxyReq", (proxyReq, req) => {
-            if (req.url?.includes("/stream")) {
-              proxyReq.setHeader("Cache-Control", "no-cache");
-              proxyReq.setHeader("Connection", "keep-alive");
-            }
-          });
-          proxy.on("proxyRes", (proxyRes, req) => {
-            if (req.url?.includes("/stream")) {
-              proxyRes.headers["cache-control"] = "no-cache";
-              proxyRes.headers["x-accel-buffering"] = "no";
-            }
-          });
-        },
-      },
+    strictPort: true,
+    host: host || false,
+    hmr: host
+      ? {
+          protocol: "ws",
+          host,
+          port: 12001,
+        }
+      : undefined,
+    watch: {
+      ignored: ["**/src-tauri/**"],
     },
   },
   build: {
     outDir: resolve(__dirname, "../dist/web"),
     emptyOutDir: true,
+    target: process.env.TAURI_ENV_PLATFORM === "windows" ? "chrome105" : "safari13",
+    minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
+    sourcemap: !!process.env.TAURI_ENV_DEBUG,
   },
 });

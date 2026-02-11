@@ -1,4 +1,4 @@
-import type { ConversationMessage, Session } from "../storage";
+import type { ConversationMessage, Session } from "../types";
 
 export interface ExportContext {
   messages: ConversationMessage[];

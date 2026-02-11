@@ -1,11 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import type { ConversationMessage } from "@claude-run/api";
+import type { ConversationMessage, StreamResult } from "../lib/types";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import MessageBlock from "./message-block";
 import ScrollToBottomButton from "./scroll-to-bottom-button";
 
-const MAX_RETRIES = 10;
-const BASE_RETRY_DELAY_MS = 1000;
-const MAX_RETRY_DELAY_MS = 30000;
 const SCROLL_THRESHOLD_PX = 100;
 
 interface SessionViewProps {
@@ -21,77 +20,52 @@ function SessionView(props: SessionViewProps) {
   const [autoScroll, setAutoScroll] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef(0);
+  const offsetRef = useRef<number>(0);
   const isScrollingProgrammaticallyRef = useRef(false);
-  const retryCountRef = useRef(0);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const mountedRef = useRef(true);
 
-  const connect = useCallback(() => {
-    if (!mountedRef.current) {
-      return;
-    }
-
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-    }
-
-    const eventSource = new EventSource(
-      `/api/conversation/${sessionId}/stream?offset=${offsetRef.current}`
-    );
-    eventSourceRef.current = eventSource;
-
-    eventSource.addEventListener("messages", (event) => {
-      retryCountRef.current = 0;
-      const newMessages: ConversationMessage[] = JSON.parse(event.data);
-      setLoading(false);
-      setMessages((prev) => {
-        const existingIds = new Set(prev.map((m) => m.uuid).filter(Boolean));
-        const unique = newMessages.filter((m) => !existingIds.has(m.uuid));
-        if (unique.length === 0) {
-          return prev;
-        }
-        offsetRef.current += unique.length;
-        return [...prev, ...unique];
+  const fetchMessages = useCallback(async () => {
+    try {
+      const result = await invoke<StreamResult>("get_conversation_stream", {
+        sessionId,
+        offset: offsetRef.current,
       });
-    });
 
-    eventSource.onerror = () => {
-      eventSource.close();
+      if (result.messages.length > 0) {
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((m) => m.uuid).filter(Boolean));
+          const unique = result.messages.filter((m) => !existingIds.has(m.uuid));
+          if (unique.length === 0) return prev;
+          return [...prev, ...unique];
+        });
+      }
+
+      offsetRef.current = result.nextOffset;
       setLoading(false);
-
-      if (!mountedRef.current) {
-        return;
-      }
-
-      if (retryCountRef.current < MAX_RETRIES) {
-        const delay = Math.min(BASE_RETRY_DELAY_MS * Math.pow(2, retryCountRef.current), MAX_RETRY_DELAY_MS);
-        retryCountRef.current++;
-        retryTimeoutRef.current = setTimeout(() => connect(), delay);
-      }
-    };
+    } catch {
+      setLoading(false);
+    }
   }, [sessionId]);
 
+  // Initial load
   useEffect(() => {
-    mountedRef.current = true;
     setLoading(true);
     setMessages([]);
     offsetRef.current = 0;
-    retryCountRef.current = 0;
+    fetchMessages();
+  }, [fetchMessages]);
 
-    connect();
+  // Listen for conversation updates from file watcher
+  useEffect(() => {
+    const unlisten = listen<string>("conversation-update", (event) => {
+      if (event.payload === sessionId) {
+        fetchMessages();
+      }
+    });
 
     return () => {
-      mountedRef.current = false;
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-      }
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
+      unlisten.then((fn) => fn());
     };
-  }, [connect]);
+  }, [sessionId, fetchMessages]);
 
   const scrollToBottom = useCallback(() => {
     if (!lastMessageRef.current) {
