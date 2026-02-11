@@ -59,33 +59,33 @@ export function TaskRenderer(props: TaskRendererProps) {
 
   return (
     <div className="w-full mt-2">
-      <div className="bg-zinc-900/70 border border-zinc-700/50 rounded-lg overflow-hidden">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-700/50 bg-zinc-800/30">
+      <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg overflow-hidden">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--color-border)] bg-[var(--color-bg-code)]">
           <Bot size={14} className={agentColor} />
           <span className={`text-xs font-medium ${agentColor}`}>
             {input.subagent_type}
           </span>
           {input.description && (
             <>
-              <ArrowRight size={10} className="text-zinc-600" />
-              <span className="text-xs text-zinc-400">{input.description}</span>
+              <ArrowRight size={10} className="text-[var(--color-text-faint)]" />
+              <span className="text-xs text-[var(--color-text-muted)]">{input.description}</span>
             </>
           )}
           <div className="flex items-center gap-1.5 ml-auto">
             {input.resume && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500 bg-zinc-700/50 px-1.5 py-0.5 rounded">
+              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-hover)] px-1.5 py-0.5 rounded">
                 <RefreshCw size={10} />
                 resume
               </span>
             )}
             {input.run_in_background && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500 bg-zinc-700/50 px-1.5 py-0.5 rounded">
+              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-hover)] px-1.5 py-0.5 rounded">
                 <Pause size={10} />
                 background
               </span>
             )}
             {input.model && (
-              <span className="text-[10px] text-zinc-500 bg-zinc-700/50 px-1.5 py-0.5 rounded">
+              <span className="text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-hover)] px-1.5 py-0.5 rounded">
                 {input.model}
               </span>
             )}
@@ -96,7 +96,7 @@ export function TaskRenderer(props: TaskRendererProps) {
             className={`flex items-start gap-2 px-3 py-2 rounded-lg border ${agentBgColor}`}
           >
             <Play size={12} className={`${agentColor} mt-0.5 flex-shrink-0`} />
-            <p className="text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap">
+            <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap">
               {input.prompt}
             </p>
           </div>

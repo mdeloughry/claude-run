@@ -101,7 +101,7 @@ function SessionView(props: SessionViewProps) {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center text-zinc-500">
+      <div className="flex h-full items-center justify-center text-[var(--color-text-muted)]">
         Loading...
       </div>
     );
@@ -112,15 +112,15 @@ function SessionView(props: SessionViewProps) {
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto bg-zinc-950"
+        className="h-full overflow-y-auto bg-[var(--color-bg)]"
       >
         <div className="mx-auto max-w-3xl px-4 py-4">
           {summary && (
-            <div className="mb-6 rounded-xl border border-zinc-800/60 bg-zinc-900/50 p-4">
-              <h2 className="text-sm font-medium text-zinc-200 leading-relaxed">
+            <div className="mb-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4">
+              <h2 className="text-sm font-medium text-[var(--color-text-secondary)] leading-relaxed">
                 {summary.summary}
               </h2>
-              <p className="mt-2 text-[11px] text-zinc-500">
+              <p className="mt-2 text-[11px] text-[var(--color-text-muted)]">
                 {conversationMessages.length} messages
               </p>
             </div>

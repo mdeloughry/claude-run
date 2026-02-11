@@ -95,7 +95,7 @@ function ExportDropdown(props: ExportDropdownProps) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors cursor-pointer shrink-0"
+        className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-[var(--color-text-secondary)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-hover)] rounded transition-colors cursor-pointer shrink-0"
         title="Export conversation"
       >
         <Download className="w-3.5 h-3.5" />
@@ -109,13 +109,13 @@ function ExportDropdown(props: ExportDropdownProps) {
             if (e.target === e.currentTarget) close();
           }}
         >
-          <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-[360px] p-5">
+          <div className="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl shadow-2xl w-[360px] p-5">
             {/* Header */}
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-sm font-semibold text-zinc-100">Export Conversation</h2>
+              <h2 className="text-sm font-semibold text-[var(--color-text)]">Export Conversation</h2>
               <button
                 onClick={close}
-                className="text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -123,7 +123,7 @@ function ExportDropdown(props: ExportDropdownProps) {
 
             {/* Format */}
             <div className="mb-4">
-              <label className="block text-[11px] text-zinc-500 mb-2 uppercase tracking-wider">Format</label>
+              <label className="block text-[11px] text-[var(--color-text-muted)] mb-2 uppercase tracking-wider">Format</label>
               <div className="flex gap-1.5">
                 {FORMATS.map(({ key, label }) => (
                   <button
@@ -131,8 +131,8 @@ function ExportDropdown(props: ExportDropdownProps) {
                     onClick={() => setFormat(key)}
                     className={`flex-1 px-2 py-1.5 text-xs rounded-lg border transition-colors cursor-pointer ${
                       format === key
-                        ? "bg-zinc-700 border-zinc-500 text-zinc-100"
-                        : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-750 hover:border-zinc-600"
+                        ? "bg-[var(--color-bg-hover)] border-[var(--color-text-muted)] text-[var(--color-text)]"
+                        : "bg-[var(--color-bg-code)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-text-faint)]"
                     }`}
                   >
                     {label}
@@ -144,7 +144,7 @@ function ExportDropdown(props: ExportDropdownProps) {
             {/* Theme (HTML only) */}
             {format === "html" && (
               <div className="mb-4">
-                <label className="block text-[11px] text-zinc-500 mb-2 uppercase tracking-wider">Theme</label>
+                <label className="block text-[11px] text-[var(--color-text-muted)] mb-2 uppercase tracking-wider">Theme</label>
                 <div className="flex gap-1.5">
                   {THEMES.map(({ key, label }) => (
                     <button
@@ -152,8 +152,8 @@ function ExportDropdown(props: ExportDropdownProps) {
                       onClick={() => setTheme(key)}
                       className={`flex-1 px-2 py-1.5 text-xs rounded-lg border transition-colors cursor-pointer ${
                         theme === key
-                          ? "bg-zinc-700 border-zinc-500 text-zinc-100"
-                          : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-750 hover:border-zinc-600"
+                          ? "bg-[var(--color-bg-hover)] border-[var(--color-text-muted)] text-[var(--color-text)]"
+                          : "bg-[var(--color-bg-code)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-text-faint)]"
                       }`}
                     >
                       {label}
@@ -170,12 +170,12 @@ function ExportDropdown(props: ExportDropdownProps) {
                   type="checkbox"
                   checked={includeTools}
                   onChange={(e) => setIncludeTools(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded border-zinc-600 bg-zinc-800 text-indigo-500 accent-indigo-500"
+                  className="w-3.5 h-3.5 rounded border-[var(--color-border)] bg-[var(--color-bg-code)] accent-[var(--color-accent)]"
                 />
-                <span className="text-xs text-zinc-300">Include tool calls</span>
+                <span className="text-xs text-[var(--color-text-secondary)]">Include tool calls</span>
               </label>
               {!includeTools && (
-                <p className="text-[10px] text-zinc-500 mt-1.5 ml-6">
+                <p className="text-[10px] text-[var(--color-text-muted)] mt-1.5 ml-6">
                   Tool use, results, and thinking blocks will be removed
                 </p>
               )}
@@ -185,13 +185,13 @@ function ExportDropdown(props: ExportDropdownProps) {
             <div className="flex justify-end gap-2">
               <button
                 onClick={close}
-                className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleExport}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-accent-text)] rounded-lg transition-colors cursor-pointer"
               >
                 <Download className="w-3 h-3" />
                 Export

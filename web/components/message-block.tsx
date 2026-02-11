@@ -100,9 +100,9 @@ const MessageBlock = memo(function MessageBlock(props: MessageBlockProps) {
       const toolUseCount = toolBlocks.filter((b) => b.type === "tool_use").length;
       if (toolUseCount === 0) return null;
       return (
-        <div className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-zinc-500">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-[var(--color-text-muted)]">
           <Wrench size={12} className="opacity-50" />
-          <span>{toolUseCount} tool call{toolUseCount !== 1 ? "s" : ""}</span>
+          <span className="font-pixel">{toolUseCount} tool call{toolUseCount !== 1 ? "s" : ""}</span>
         </div>
       );
     }
@@ -120,8 +120,8 @@ const MessageBlock = memo(function MessageBlock(props: MessageBlockProps) {
   }
 
   const avatar = isUser ? (
-    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1 bg-indigo-600/60">
-      <User size={14} className="text-indigo-200" />
+    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1 bg-[var(--color-user-bubble)]">
+      <User size={14} className="text-[var(--color-user-text)]" />
     </div>
   ) : (
     <svg className="w-6 h-6 rounded-full shrink-0 mt-1" viewBox="0 0 512 509.64" fill="none">
@@ -137,8 +137,8 @@ const MessageBlock = memo(function MessageBlock(props: MessageBlockProps) {
         <div
           className={`px-3.5 py-2.5 rounded-2xl overflow-hidden ${
             isUser
-              ? "bg-indigo-600/80 text-indigo-50 rounded-br-md"
-              : "bg-cyan-700/50 text-zinc-100 rounded-bl-md"
+              ? "bg-[var(--color-user-bubble)] text-[var(--color-user-text)] rounded-br-md"
+              : "bg-[var(--color-assistant-bubble)] text-[var(--color-assistant-text)] rounded-bl-md"
           }`}
         >
           {typeof content === "string" ? (
@@ -305,7 +305,7 @@ function ToolInputRenderer(props: ToolInputRendererProps) {
   }
 
   return (
-    <pre className="text-xs text-slate-300 bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 mt-2 overflow-x-auto whitespace-pre-wrap break-all max-h-80 overflow-y-auto">
+    <pre className="text-xs text-slate-300 bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 mt-2 overflow-x-auto whitespace-pre-wrap break-all max-h-80 overflow-y-auto font-mono">
       {JSON.stringify(input, null, 2)}
     </pre>
   );
@@ -359,7 +359,7 @@ function ToolResultRenderer(props: ToolResultRendererProps) {
       }`}
     >
       {displayContent}
-      {truncated && <span className="text-zinc-500">... ({content.length - maxLength} more chars)</span>}
+      {truncated && <span className="text-[var(--color-text-muted)]">... ({content.length - maxLength} more chars)</span>}
     </pre>
   );
 }
@@ -391,13 +391,13 @@ function ContentBlockRenderer(props: ContentBlockRendererProps) {
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/15 text-[11px] text-amber-400/90 transition-colors border border-amber-500/20"
         >
           <Lightbulb size={12} className="opacity-70" />
-          <span className="font-medium">thinking</span>
+          <span className="font-medium font-pixel">thinking</span>
           <span className="text-[10px] opacity-50 ml-0.5">
             {expanded ? "▼" : "▶"}
           </span>
         </button>
         {expanded && (
-          <pre className="text-xs text-zinc-400 bg-zinc-900/80 border border-zinc-800 rounded-lg p-3 mt-2 whitespace-pre-wrap max-h-80 overflow-y-auto">
+          <pre className="text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg p-3 mt-2 whitespace-pre-wrap max-h-80 overflow-y-auto font-mono">
             {block.thinking}
           </pre>
         )}
@@ -434,7 +434,7 @@ function ContentBlockRenderer(props: ContentBlockRendererProps) {
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-500/10 hover:bg-slate-500/15 text-[11px] text-slate-300 transition-colors border border-slate-500/20"
         >
           <Icon size={12} className="opacity-60" />
-          <span className="font-medium text-slate-200">{block.name}</span>
+          <span className="font-medium text-slate-200 font-pixel">{block.name}</span>
           {preview && (
             <span className="text-slate-500 font-normal truncate max-w-[200px]">
               {preview}
@@ -491,7 +491,7 @@ function ContentBlockRenderer(props: ContentBlockRendererProps) {
           ) : (
             <Check size={12} className="opacity-70" />
           )}
-          <span className="font-medium">{isError ? "error" : "result"}</span>
+          <span className="font-medium font-pixel">{isError ? "error" : "result"}</span>
           {contentPreview && !expanded && (
             <span
               className={`font-normal truncate max-w-[200px] ${isError ? "text-rose-500/70" : "text-teal-500/70"}`}
