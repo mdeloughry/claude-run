@@ -10,10 +10,11 @@ const SCROLL_THRESHOLD_PX = 100;
 
 interface SessionViewProps {
   sessionId: string;
+  hideTools?: boolean;
 }
 
 function SessionView(props: SessionViewProps) {
-  const { sessionId } = props;
+  const { sessionId, hideTools } = props;
 
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,7 +162,7 @@ function SessionView(props: SessionViewProps) {
                     : undefined
                 }
               >
-                <MessageBlock message={message} />
+                <MessageBlock message={message} hideTools={hideTools} />
               </div>
             ))}
           </div>

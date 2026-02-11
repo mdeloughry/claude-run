@@ -276,6 +276,13 @@ export async function getProjects(): Promise<string[]> {
   return [...projects].sort();
 }
 
+export async function getSessionMeta(
+  sessionId: string,
+): Promise<Session | null> {
+  const sessions = await getSessions();
+  return sessions.find((s) => s.id === sessionId) || null;
+}
+
 export async function getConversation(
   sessionId: string
 ): Promise<ConversationMessage[]> {

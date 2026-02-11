@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { Session } from "@claude-run/api";
-import { PanelLeft, Copy, Check } from "lucide-react";
+import { PanelLeft, Copy, Check, Eye, EyeOff } from "lucide-react";
+import ExportDropdown from "./components/export-dropdown";
 import { formatTime } from "./utils";
 import SessionList from "./components/session-list";
 import SessionView from "./components/session-view";
@@ -9,11 +10,13 @@ import { useEventSource } from "./hooks/use-event-source";
 interface SessionHeaderProps {
   session: Session;
   copied: boolean;
+  hideTools: boolean;
   onCopyResumeCommand: (sessionId: string, projectPath: string) => void;
+  onToggleHideTools: () => void;
 }
 
 function SessionHeader(props: SessionHeaderProps) {
-  const { session, copied, onCopyResumeCommand } = props;
+  const { session, copied, hideTools, onCopyResumeCommand, onToggleHideTools } = props;
 
   return (
     <>
@@ -28,6 +31,24 @@ function SessionHeader(props: SessionHeaderProps) {
           {formatTime(session.timestamp)}
         </span>
       </div>
+      <button
+        onClick={onToggleHideTools}
+        className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors cursor-pointer shrink-0"
+        title={hideTools ? "Show tool blocks" : "Hide tool blocks"}
+      >
+        {hideTools ? (
+          <>
+            <Eye className="w-3.5 h-3.5" />
+            <span>Show Tools</span>
+          </>
+        ) : (
+          <>
+            <EyeOff className="w-3.5 h-3.5" />
+            <span>Hide Tools</span>
+          </>
+        )}
+      </button>
+      <ExportDropdown sessionId={session.id} />
       <button
         onClick={() => onCopyResumeCommand(session.id, session.project)}
         className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors cursor-pointer shrink-0"
@@ -57,6 +78,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [hideTools, setHideTools] = useState(false);
 
   const handleCopyResumeCommand = useCallback(
     (sessionId: string, projectPath: string) => {
@@ -174,13 +196,15 @@ function App() {
             <SessionHeader
               session={selectedSessionData}
               copied={copied}
+              hideTools={hideTools}
               onCopyResumeCommand={handleCopyResumeCommand}
+              onToggleHideTools={() => setHideTools(!hideTools)}
             />
           )}
         </div>
         <div className="flex-1 overflow-hidden">
           {selectedSession ? (
-            <SessionView sessionId={selectedSession} />
+            <SessionView sessionId={selectedSession} hideTools={hideTools} />
           ) : (
             <div className="flex h-full items-center justify-center text-zinc-600">
               <div className="text-center">

@@ -12,9 +12,17 @@ import {
   getProjects,
   getConversation,
   getConversationStream,
+  getSessionMeta,
   invalidateHistoryCache,
   addToFileIndex,
 } from "./storage";
+import {
+  jsonExporter,
+  textExporter,
+  markdownExporter,
+  htmlExporter,
+} from "./exporters";
+import type { Exporter } from "./exporters";
 import {
   initWatcher,
   startWatcher,
@@ -209,6 +217,45 @@ export function createServer(options: ServerOptions) {
         cleanup();
       }
     });
+  });
+
+  const exporters: Record<string, Exporter> = {
+    html: htmlExporter,
+    md: markdownExporter,
+    json: jsonExporter,
+    txt: textExporter,
+  };
+
+  app.get("/api/export/:id", async (c) => {
+    const sessionId = c.req.param("id");
+    const format = (c.req.query("format") || "html") as string;
+
+    const exporter = exporters[format];
+    if (!exporter) {
+      return c.text(`Unsupported format: ${format}. Use html, md, json, or txt.`, 400);
+    }
+
+    const session = await getSessionMeta(sessionId);
+    if (!session) {
+      return c.text("Session not found", 404);
+    }
+
+    const messages = await getConversation(sessionId);
+    const theme = c.req.query("theme") as "dark" | "light" | "minimal" | undefined;
+    const stripTools = c.req.query("stripTools") === "true";
+    const output = exporter.generate({ messages, session, theme, stripTools });
+    const safeName = session.display
+      .replace(/[^a-zA-Z0-9-_ ]/g, "")
+      .replace(/\s+/g, "-")
+      .slice(0, 60)
+      || "conversation";
+
+    c.header("Content-Type", exporter.contentType);
+    c.header(
+      "Content-Disposition",
+      `attachment; filename="claude-${safeName}.${exporter.fileExtension}"`,
+    );
+    return c.body(output);
   });
 
   const webDistPath = getWebDistPath();
